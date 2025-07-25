@@ -4,6 +4,7 @@ Export Green Button (ESPI) energy usage data from your Toronto Hydro account.
 import argparse
 import enum
 import getpass
+import json
 import logging
 import os
 import shutil
@@ -41,13 +42,13 @@ def get_web_driver(browser: Browser) -> WebDriver:
 
 def login(driver: WebDriver, username: str, password: str) -> None:
     """Log into the Toronto Hydro dashboard."""
-    driver.get('https://css.torontohydro.com/selfserve/Pages/login.aspx')
+    # driver.get('https://css.torontohydro.com/selfserve/Pages/login.aspx')
+    driver.get('https://www.torontohydro.com/log-in')
 
-    username_field = driver.find_element_by_css_selector('input[type="text"]')
-    password_field = driver.find_element_by_css_selector('input[type="password"]')
-    login_button = driver.find_element_by_css_selector(
-        'input[type="submit"][value="Login"]'
-    )
+    form = driver.find_element('id', '_th_module_authentication_ThModuleAuthenticationPortlet_authentication')
+    username_field = form.find_element('id', 'email')
+    password_field = form.find_element('id', 'password')
+    login_button = form.find_element('css selector', '[type="submit"]')
 
     username_field.send_keys(username)
     password_field.send_keys(password)
@@ -64,7 +65,7 @@ def get_cookies(driver: WebDriver, timeout: int = 60) -> List[Dict[str, str]]:
     # fmt: off
     # Black splits the lamba at ==.
     wait.until(
-        lambda driver: driver.current_url == 'https://myusage.torontohydro.com/myenergy/billhistory'
+        lambda driver: driver.current_url == 'https://www.torontohydro.com/my-account/account-summary'
     )
     # fmt: on
     cookies: List[Dict[str, str]] = driver.get_cookies()
@@ -80,12 +81,26 @@ def get_session(cookies: List[Dict[str, str]]) -> requests.Session:
 
 
 def get_green_button_xml(
-    session: requests.Session, start_date: date, end_date: date
+    session: requests.Session, 
+    account_id: str,
+    sp_id: str,
+    start_date: date, 
+    end_date: date
 ) -> str:
     """Download Green Button XML."""
+    payload = {
+        "accountId": account_id,
+        "spID": sp_id,
+        "downloadType": "billing",
+        "startDate": start_date.strftime("%Y-%m-%d"),
+        "endDate": end_date.strftime("%Y-%m-%d"),
+    }
     response = session.get(
-        f'https://myusage.torontohydro.com/cassandra/getfile/period/custom/start_date/{start_date:%m-%d-%Y}/to_date/{end_date:%m-%d-%Y}/format/xml'
+        "https://www.torontohydro.com/my-account/green-button-data?p_p_id=thmodulegbmanage&p_p_lifecycle=2&p_p_state=normal&p_p_mode=view&p_p_resource_id=/dmd&p_p_cacheability=cacheLevelPage",
+        data=json.dumps(payload),
+        headers={"Content-Type": "application/json"}
     )
+
     response.raise_for_status()
     return response.text
 
@@ -109,6 +124,20 @@ def parse_args(argv: Optional[List[str]] = None) -> argparse.Namespace:
         '-p',
         default=os.getenv('TORONTO_HYDRO_PASSWORD'),
         help='Toronto Hydro password. Will prompt if not set. [TORONTO_HYDRO_PASSWORD]',
+    )
+
+    parser.add_argument(
+        '--account-id',
+        '-a',
+        default=os.getenv('TORONTO_HYDRO_ACCOUNT_ID'),
+        help='Toronto Hydro account ID. Will prompt if not set. [TORONTO_HYDRO_ACCOUNT_ID]',
+    )
+
+    parser.add_argument(
+        '--sp-id',
+        '-s',
+        default=os.getenv('TORONTO_HYDRO_SP_ID'),
+        help='Toronto Hydro service provider ID. Will prompt if not set. [TORONTO_HYDRO_SP_ID]',
     )
 
     default_end_date = datetime.now().date() - timedelta(days=2)
@@ -190,7 +219,7 @@ def main(argv: Optional[List[str]] = None) -> None:
         args.end_date,
     )
     session = get_session(cookies)
-    data = get_green_button_xml(session, args.start_date, args.end_date)
+    data = get_green_button_xml(session, args.account_id, args.sp_id, args.start_date, args.end_date)
     args.out_file.write(data)
 
 
