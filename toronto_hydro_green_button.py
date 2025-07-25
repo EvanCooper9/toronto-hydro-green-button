@@ -90,7 +90,7 @@ def get_green_button_xml(
     payload = {
         "accountId": account_id,
         "spID": sp_id,
-        "downloadType": "billing",
+        "downloadType": "usage",
         "startDate": start_date.strftime("%Y-%m-%d"),
         "endDate": end_date.strftime("%Y-%m-%d"),
     }
