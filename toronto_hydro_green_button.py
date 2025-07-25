@@ -42,7 +42,6 @@ def get_web_driver(browser: Browser) -> WebDriver:
 
 def login(driver: WebDriver, username: str, password: str) -> None:
     """Log into the Toronto Hydro dashboard."""
-    # driver.get('https://css.torontohydro.com/selfserve/Pages/login.aspx')
     driver.get('https://www.torontohydro.com/log-in')
 
     form = driver.find_element('id', '_th_module_authentication_ThModuleAuthenticationPortlet_authentication')
