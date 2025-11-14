@@ -140,11 +140,11 @@ def parse_args(argv: Optional[List[str]] = None) -> argparse.Namespace:
     )
 
     default_end_date = datetime.now().date() - timedelta(days=1)
-    default_start_date = datetime.now().date() - timedelta(days=1)
+    default_start_date = datetime.now().date() - timedelta(days=8)
     parser.add_argument(
         '--start-date',
         default=default_start_date,
-        help=f'Fetch usage data from this date (inclusive, YYYY-mm-dd). Defaults to one day ago ({default_start_date:%Y-%m-%d}).',
+        help=f'Fetch usage data from this date (inclusive, YYYY-mm-dd). Defaults to eight days ago ({default_start_date:%Y-%m-%d}).',
         type=clean_date,
     )
     parser.add_argument(

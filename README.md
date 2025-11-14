@@ -21,6 +21,14 @@ pip install toronto-hydro-green-button
 
 ## Usage
 
+The script takes the following arguments:
+- `username`
+- `password`
+- `account-id`
+- `sp-id`
+
+Username & password are self-explanatory. Account ID and Service Provider ID (SP ID) can be retrieved by using your browser tools to inspect the POST request body of `https://www.torontohydro.com/my-account/green-button-data` when manually downloading your usage data [here](https://www.torontohydro.com/my-account/green-button-data).
+
 ```
 usage: toronto-hydro-green-button [-h] [--version] [--username USERNAME] [--password PASSWORD] [--account-id ACCOUNT_ID] [--sp-id SP_ID] [--start-date START_DATE] [--end-date END_DATE] [--browser {firefox,chrome}] [--output OUTPUT]
 
