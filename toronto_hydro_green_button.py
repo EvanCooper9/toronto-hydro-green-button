@@ -201,6 +201,10 @@ def main(argv: Optional[List[str]] = None) -> None:
     args = parse_args(argv)
     username = args.username or input('Username: ')
     password = args.password or getpass.getpass()
+    account_id = args.account_id or input('Account ID: ')
+    sp_id = args.sp_id or input('SP ID: ')
+    start_date = args.start_date or input('Start date (YYYY-MM-DD): ')
+    end_date = args.end_date or input('End date (YYYY-MM-DD): ')
 
     try:
         logger.info('Starting Selenium web driver')
@@ -218,7 +222,7 @@ def main(argv: Optional[List[str]] = None) -> None:
         args.end_date,
     )
     session = get_session(cookies)
-    data = get_green_button_xml(session, args.account_id, args.sp_id, args.start_date, args.end_date)
+    data = get_green_button_xml(session, account_id, sp_id, args.start_date, args.end_date)
     args.out_file.write(data)
 
 
