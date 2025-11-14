@@ -21,17 +21,29 @@ pip install toronto-hydro-green-button
 
 ## Usage
 
-The script needs your username and password to log into the dashboard.
-It will check, in order of precedence:
-
-* `--username`/`-u` and `--password`/`-p` arguments
-* `TORONTO_HYDRO_USERNAME` and `TORONTO_HYDRO_PASSWORD` environment variables
-* prompt input
-
-Use `--start-date` and `--end-date` to query data between two dates (inclusive).
-
 ```
-$ toronto-hydro-green-button --start-date 2019-11-01 --end-date 2019-11-31
+usage: toronto-hydro-green-button [-h] [--version] [--username USERNAME] [--password PASSWORD] [--account-id ACCOUNT_ID] [--sp-id SP_ID] [--start-date START_DATE] [--end-date END_DATE] [--browser {firefox,chrome}] [--output OUTPUT]
+
+Export Green Button (ESPI) energy usage data from your Toronto Hydro account.
+
+options:
+  -h, --help            show this help message and exit
+  --version             show program's version number and exit
+  --username USERNAME, -u USERNAME
+                        Toronto Hydro username. Will prompt if not set. [TORONTO_HYDRO_USERNAME]
+  --password PASSWORD, -p PASSWORD
+                        Toronto Hydro password. Will prompt if not set. [TORONTO_HYDRO_PASSWORD]
+  --account-id ACCOUNT_ID, -a ACCOUNT_ID
+                        Toronto Hydro account ID. Will prompt if not set. [TORONTO_HYDRO_ACCOUNT_ID]
+  --sp-id SP_ID, -s SP_ID
+                        Toronto Hydro service provider ID. Will prompt if not set. [TORONTO_HYDRO_SP_ID]
+  --start-date START_DATE
+                        Fetch usage data from this date (inclusive, YYYY-mm-dd). Defaults to one day ago (2025-11-13).
+  --end-date END_DATE   Fetch usage data through this date (inclusive, YYYY-mm-dd). Defaults to one day ago (2025-11-13).
+  --browser {firefox,chrome}
+                        Headless browser to use to access Toronto Hydro dashboard (default: firefox).
+  --output OUTPUT, -o OUTPUT
+                        Write XML data to this file. Defaults to standard output.
 ```
 
 If ChromeDriver is installed, the script attempts to use it by default.
@@ -42,11 +54,7 @@ Run `toronto-hydro-green-button --help` for additional usage information.
 
 ## Tips
 
-Toronto Hydro usage data lags by 2&ndash;3 days.
-This script defaults to querying data from two days ago.
-
-If you run this script frequently, you may not always see fresh data.
-It should be sufficient to run it daily.
+You can't get data for the current day, so this script defaults to getting data from yesterday.
 
 ## License
 

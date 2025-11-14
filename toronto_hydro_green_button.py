@@ -139,18 +139,18 @@ def parse_args(argv: Optional[List[str]] = None) -> argparse.Namespace:
         help='Toronto Hydro service provider ID. Will prompt if not set. [TORONTO_HYDRO_SP_ID]',
     )
 
-    default_end_date = datetime.now().date() - timedelta(days=2)
-    default_start_date = default_end_date - timedelta(days=1)
+    default_end_date = datetime.now().date() - timedelta(days=1)
+    default_start_date = datetime.now().date() - timedelta(days=1)
     parser.add_argument(
         '--start-date',
         default=default_start_date,
-        help=f'Fetch usage data from this date (inclusive, YYYY-mm-dd). Defaults to three days ago ({default_start_date:%Y-%m-%d}).',
+        help=f'Fetch usage data from this date (inclusive, YYYY-mm-dd). Defaults to one day ago ({default_start_date:%Y-%m-%d}).',
         type=clean_date,
     )
     parser.add_argument(
         '--end-date',
         default=default_end_date,
-        help=f'Fetch usage data through this date (inclusive, YYYY-mm-dd). Defaults to two days ago ({default_end_date:%Y-%m-%d}).',
+        help=f'Fetch usage data through this date (inclusive, YYYY-mm-dd). Defaults to one day ago ({default_end_date:%Y-%m-%d}).',
         type=clean_date,
     )
 
@@ -218,11 +218,11 @@ def main(argv: Optional[List[str]] = None) -> None:
 
     logger.info(
         'Downloading Green Button data between %s and %s',
-        args.start_date,
-        args.end_date,
+        start_date,
+        end_date,
     )
     session = get_session(cookies)
-    data = get_green_button_xml(session, account_id, sp_id, args.start_date, args.end_date)
+    data = get_green_button_xml(session, account_id, sp_id, start_date, end_date)
     args.out_file.write(data)
 
 
