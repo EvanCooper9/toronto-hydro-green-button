@@ -64,6 +64,8 @@ Run `toronto-hydro-green-button --help` for additional usage information.
 
 You can't get data for the current day, so this script defaults to getting data from yesterday.
 
+Want to add this energy data to Home Assitant? [Instructions here](homeassistant.md)
+
 ## License
 
 MIT

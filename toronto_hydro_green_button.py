@@ -16,6 +16,7 @@ import requests
 from selenium import webdriver
 from selenium.webdriver.remote.webdriver import WebDriver
 from selenium.webdriver.support.ui import WebDriverWait
+from selenium.common.exceptions import NoSuchDriverException
 
 __version__ = '0.1.0'
 
@@ -37,7 +38,14 @@ def get_web_driver(browser: Browser) -> WebDriver:
     else:
         options = webdriver.ChromeOptions()
         options.add_argument('--headless')
-        return webdriver.Chrome(options=options)
+        try:
+            #in case we are on x86_64 we do not need the chromeservice workaround,
+            #so try the normal way first
+            return webdriver.Chrome(options=options)
+        except NoSuchDriverException:
+            chromedriver_path = shutil.which("chromedriver") #/usr/bin/chromedriver
+            service = webdriver.ChromeService(executable_path=chromedriver_path)
+            return webdriver.Chrome(options=options, service=service)
 
 
 def login(driver: WebDriver, username: str, password: str) -> None:
@@ -56,17 +64,7 @@ def login(driver: WebDriver, username: str, password: str) -> None:
 
 def get_cookies(driver: WebDriver, timeout: int = 60) -> List[Dict[str, str]]:
     """Navigate to the usage dashboard and extract the browser cookies."""
-    driver.get(
-        'https://css.torontohydro.com/Pages/ICFRedirect.aspx?Controller=myenergy&Action=billhistory'
-    )
-    # Wait for redirect
-    wait = WebDriverWait(driver, timeout)
-    # fmt: off
-    # Black splits the lamba at ==.
-    wait.until(
-        lambda driver: driver.current_url == 'https://www.torontohydro.com/my-account/account-summary'
-    )
-    # fmt: on
+    driver.get('https://www.torontohydro.com/my-account/account-summary')
     cookies: List[Dict[str, str]] = driver.get_cookies()
     return cookies
 
@@ -209,6 +207,7 @@ def main(argv: Optional[List[str]] = None) -> None:
     try:
         logger.info('Starting Selenium web driver')
         driver = get_web_driver(args.browser)
+        driver.set_page_load_timeout(60)
         logger.info('Logging into Toronto Hydro dashboard')
         login(driver, username, password)
         logger.info('Fetching Toronto Hydro dashboard cookies from browser')
