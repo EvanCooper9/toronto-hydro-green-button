@@ -1,7 +1,8 @@
+bin
+build
+include
+lib
 *.egg-info/
-.mypy_cache/
-dist/
+pyvenv.cfg
 
 *.xml
-
-build
