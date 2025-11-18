@@ -16,28 +16,23 @@ source <path to clone>/bin/activate
 python <path to clone>/toronto_hydro_green_button.py --username USERNAME --password PASSWORD --account-id ACCOUNT_ID --sp-id SP_ID --output toronto_hydro.xml --browser chrome
 deactivate
 ```
-5. Run the script daily via cron (i.e. at 12:05 am when yesterday's data becomes available)
+5. Run the script daily via cron (i.e. at 1:00 am when the previous day's data becomes available)
 ```
-5 0 * * * /./<path to script>/import_toronto_hydro.sh
+0 1 * * * /./<path to script>/import_toronto_hydro.sh
 ```
 6. Install and seutp the [home-assistant-green-button](https://github.com/rhounsell/home-assistant-green-button/tree/dev)
 > Note: as of November 16th 2025, make sure to use the `dev` branch
 
-7. Add an automation to call `green_button.import_espi_xml` every day, after the script runs(i.e. at 12:10 am)
+7. Add the [Folder Watcher](https://www.home-assistant.io/integrations/folder_watcher) integration, and point to the output file, i.e. `/config/energy_data/toronto_hydro.xml`.
+
+8. Add an automation to call `green_button.import_espi_xml` when the file changes
 ```
-alias: Import energy data
+alias: Import Toronto Hydro data
 description: ""
 triggers:
-  - trigger: time
-    at: "00:10:00"
-    weekday:
-      - sun
-      - mon
-      - tue
-      - wed
-      - thu
-      - fri
-      - sat
+  - trigger: state
+    entity_id:
+      - event.folder_watcher_config_energy_data
 conditions: []
 actions:
   - action: green_button.import_espi_xml
@@ -45,6 +40,5 @@ actions:
     data:
       xml_file_path: energy_data/toronto_hydro.xml
 mode: single
-
 ```
 
