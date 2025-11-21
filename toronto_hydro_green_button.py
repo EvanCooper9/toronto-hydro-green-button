@@ -17,6 +17,7 @@ from selenium import webdriver
 from selenium.webdriver.remote.webdriver import WebDriver
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.common.exceptions import NoSuchDriverException
+from selenium.webdriver.firefox.service import Service
 
 __version__ = '0.1.0'
 
@@ -30,23 +31,40 @@ class Browser(str, enum.Enum):
     CHROME = 'chrome'
 
 
-def get_web_driver(browser: Browser) -> WebDriver:
+def get_web_driver(browser: Browser, driver_path: Optional[str] = None) -> WebDriver:
     if browser == Browser.FIREFOX:
         options = webdriver.FirefoxOptions()
-        options.add_argument('--headless')
-        return webdriver.Firefox(options=options)
+        options.add_argument("--headless")
+        if driver_path:
+            logger.info(f"using geckodriver at {driver_path}")
+            service = Service(executable_path=driver_path)
+            return webdriver.Firefox(service=service, options=options)
+        else:
+            try:
+                return webdriver.Firefox(options=options)
+            except:
+                logger.info("trying to find geckodriver via shutil.which")
+                geckodriver_path = shutil.which("geckodriver")
+                logger.info(f"found geckodriver at {geckodriver_path}")
+                service = Service(executable_path=geckodriver_path)
+                return webdriver.Firefox(service=service, options=options)
     else:
         options = webdriver.ChromeOptions()
         options.add_argument('--headless')
-        try:
-            #in case we are on x86_64 we do not need the chromeservice workaround,
-            #so try the normal way first
-            return webdriver.Chrome(options=options)
-        except NoSuchDriverException:
-            chromedriver_path = shutil.which("chromedriver") #/usr/bin/chromedriver
-            service = webdriver.ChromeService(executable_path=chromedriver_path)
+        
+        if driver_path:
+            logger.info(f"using chromedriver at {driver_path}")
+            service = webdriver.ChromeService(executable_path=driver_path)
             return webdriver.Chrome(options=options, service=service)
-
+        else:
+            try:
+                return webdriver.Chrome(options=options)                
+            except:
+                logger.info("trying to find chrome driver via shutil.which")
+                chromedriver_path = shutil.which("chromedriver")
+                logger.info(f"found chromedriver at {chromedriver_path}")
+                service = webdriver.ChromeService(executable_path=chromedriver_path)
+                return webdriver.Chrome(options=options, service=service)
 
 def login(driver: WebDriver, username: str, password: str) -> None:
     """Log into the Toronto Hydro dashboard."""
@@ -159,6 +177,14 @@ def parse_args(argv: Optional[List[str]] = None) -> argparse.Namespace:
         help='Headless browser to use to access Toronto Hydro dashboard (default: %(default)s).',
         type=Browser,
     )
+
+    parser.add_argument(
+        '--driver',
+        help='path to web driver (geckodriver or chromedriver). If not provided, will attempt to find it in PATH.',
+        type=str,
+        default=None,
+    )
+
     parser.add_argument(
         '--output',
         '-o',
@@ -203,11 +229,12 @@ def main(argv: Optional[List[str]] = None) -> None:
     sp_id = args.sp_id or input('SP ID: ')
     start_date = args.start_date or input('Start date (YYYY-MM-DD): ')
     end_date = args.end_date or input('End date (YYYY-MM-DD): ')
+    driver_path = args.driver
 
     try:
         logger.info('Starting Selenium web driver')
-        driver = get_web_driver(args.browser)
-        driver.set_page_load_timeout(60)
+        driver = get_web_driver(args.browser, driver_path)
+        driver.set_page_load_timeout(120)
         logger.info('Logging into Toronto Hydro dashboard')
         login(driver, username, password)
         logger.info('Fetching Toronto Hydro dashboard cookies from browser')

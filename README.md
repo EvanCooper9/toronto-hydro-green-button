@@ -30,7 +30,11 @@ The script takes the following arguments:
 Username & password are self-explanatory. Account ID and Service Provider ID (SP ID) can be retrieved by using your browser tools to inspect the POST request body of `https://www.torontohydro.com/my-account/green-button-data` when manually downloading your usage data [here](https://www.torontohydro.com/my-account/green-button-data).
 
 ```
-usage: toronto-hydro-green-button [-h] [--version] [--username USERNAME] [--password PASSWORD] [--account-id ACCOUNT_ID] [--sp-id SP_ID] [--start-date START_DATE] [--end-date END_DATE] [--browser {firefox,chrome}] [--output OUTPUT]
+usage: toronto_hydro_green_button.py [-h] [--version] [--username USERNAME] [--password PASSWORD]
+                                     [--account-id ACCOUNT_ID] [--sp-id SP_ID]
+                                     [--start-date START_DATE] [--end-date END_DATE]
+                                     [--browser {firefox,chrome}] [--driver DRIVER]
+                                     [--output OUTPUT]
 
 Export Green Button (ESPI) energy usage data from your Toronto Hydro account.
 
@@ -42,14 +46,21 @@ options:
   --password PASSWORD, -p PASSWORD
                         Toronto Hydro password. Will prompt if not set. [TORONTO_HYDRO_PASSWORD]
   --account-id ACCOUNT_ID, -a ACCOUNT_ID
-                        Toronto Hydro account ID. Will prompt if not set. [TORONTO_HYDRO_ACCOUNT_ID]
+                        Toronto Hydro account ID. Will prompt if not set.
+                        [TORONTO_HYDRO_ACCOUNT_ID]
   --sp-id SP_ID, -s SP_ID
-                        Toronto Hydro service provider ID. Will prompt if not set. [TORONTO_HYDRO_SP_ID]
+                        Toronto Hydro service provider ID. Will prompt if not set.
+                        [TORONTO_HYDRO_SP_ID]
   --start-date START_DATE
-                        Fetch usage data from this date (inclusive, YYYY-mm-dd). Defaults to one day ago (2025-11-13).
-  --end-date END_DATE   Fetch usage data through this date (inclusive, YYYY-mm-dd). Defaults to one day ago (2025-11-13).
+                        Fetch usage data from this date (inclusive, YYYY-mm-dd). Defaults to eight
+                        days ago (2025-11-13).
+  --end-date END_DATE   Fetch usage data through this date (inclusive, YYYY-mm-dd). Defaults to
+                        one day ago (2025-11-20).
   --browser {firefox,chrome}
-                        Headless browser to use to access Toronto Hydro dashboard (default: firefox).
+                        Headless browser to use to access Toronto Hydro dashboard (default:
+                        firefox).
+  --driver DRIVER       path to web driver (geckodriver or chromedriver). If not provided, will
+                        attempt to find it in PATH.
   --output OUTPUT, -o OUTPUT
                         Write XML data to this file. Defaults to standard output.
 ```
