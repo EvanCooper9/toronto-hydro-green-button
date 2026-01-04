@@ -33,6 +33,9 @@ triggers:
   - trigger: state
     entity_id:
       - event.folder_watcher_config_energy_data
+    attribute: event_type
+    to:
+      - modified
 conditions: []
 actions:
   - action: green_button.import_espi_xml
